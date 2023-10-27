@@ -4,7 +4,7 @@ pragma solidity >=0.8.2 <0.9.0;
 contract Blockchain {
     // Contract code goes here
     address internal teacher;
-
+    uint public tuitionAmount = 1 ether; // Tuition fee is set to 1 ether
     enum Specializations { DataScience, EnterpriseSystems, InteractiveMultimedia }
     Specializations constant defaultChoice = Specializations.DataScience;
 
@@ -13,6 +13,7 @@ contract Blockchain {
         string name;
         uint grade;
         Specializations specialization;
+        bool hasPaidTuition;
     }
 
     mapping(address => Student) public students;
@@ -51,5 +52,16 @@ contract Blockchain {
         return teacher;
     }
 
+    function payTuition() public payable isStudent {
+        require(students[msg.sender].hasPaidTuition == false, "Tuition has already been paid.");
+        require(msg.value >= tuitionAmount, "Insufficient payment for tuition.");
+
+        students[msg.sender].hasPaidTuition = true;
+    }
+
+     function withdrawFunds() public payable isStudent{
+        require(address(this).balance>0, "No funds available for withdrawal.");
+        payable(teacher).transfer(address(this).balance);
+    }
 
 } // Blockchain
